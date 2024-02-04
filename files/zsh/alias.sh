@@ -44,3 +44,49 @@ function gbdrl() {
   gb -D "${branch_name}"
 }
 
+# Sevenrooms
+# -----------------------------
+# Search and find in logs
+# saf $filename $startline $text
+alias saf="search_and_filter"
+function search_and_filter() {
+    FILENAME=$1
+    START_LINE=$2
+    SEARCH_TEXT=$3
+    sed -n "${START_LINE},\$p" ${FILENAME} | grep ${SEARCH_TEXT}
+}
+alias sr-tunnel='(
+    gcloud auth login
+    gcloud compute ssh --ssh-key-file=~/.ssh/sevenrooms_gcp vault-1 -- -N -L 8200:127.0.0.1:8200
+)'
+alias sr-serve='(
+    cd ~/sevenrooms
+    git pullworkon env3
+    pip install -r requirements.txt -r requirements_test.txt
+    yarn install
+    gulp secrets:pull
+    gulp build
+    gulp serve
+)'
+alias sr-docker='(
+    cd ~/sevenrooms
+    workon env3
+    gulp docker:dev
+)'
+alias sr-main-serve='(
+    cd ~/sevenroom
+    gco main
+    git pull
+    workon env3
+    pip install -r requirements.txt -r requirements_test.txt
+    yarn install
+    gulp secrets:pull
+    gulp build
+    gulp serve
+)'
+alias sr-main-docker='(
+    cd ~/sevenrooms
+    gco main
+    workon env3
+    gulp docker:dev
+)'
