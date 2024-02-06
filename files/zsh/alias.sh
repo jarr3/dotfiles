@@ -56,12 +56,14 @@ function search_and_filter() {
     sed -n "${START_LINE},\$p" ${FILENAME} | grep ${SEARCH_TEXT}
 }
 alias sr-tunnel='(
+    cd ~/sevenrooms
+    workon env3
     gcloud auth login
     gcloud compute ssh --ssh-key-file=~/.ssh/sevenrooms_gcp vault-1 -- -N -L 8200:127.0.0.1:8200
 )'
 alias sr-serve='(
     cd ~/sevenrooms
-    git pullworkon env3
+    workon env3
     pip install -r requirements.txt -r requirements_test.txt
     yarn install
     gulp secrets:pull
