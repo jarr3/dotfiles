@@ -60,8 +60,7 @@ search_log() {
     echo "Searching $filename for $text starting at line number $start_line"
     sed -n "${start_line},\$p" ${filename} | grep ${text}
 }
-sr_run()
-{
+alias sr_run='(
     echo "Starting sevenrooms app locally..."
     cd ~/sevenrooms
     current_branch=$(git branch --show-current)
@@ -80,7 +79,7 @@ sr_run()
     gulp secrets:pull
     gulp build
     gulp serve
-}
+)'
 sr_start_tunnel() {
         TUNNEL_PID=$(lsof -ti :8200)
         if [ -z "$TUNNEL_PID" ]
