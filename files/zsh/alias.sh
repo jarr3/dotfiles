@@ -21,27 +21,27 @@ alias activate='source ./venv/bin/activate'
 alias gat="ga -u"
 
 # Delete a local branch
-gbdl() {
+alias gbdl='(
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
     
   gcm
   gb -D "${branch_name}"
-}
+)'
 
 # Delete a remote branch
-gbdr() {
+alias gbdr='(
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
 
   gcm
   gp origin --delete "${branch_name}"
-}
+)'
 
 # Delete a local and remote branch
-gbdrl() {
+alias gbdrl='(
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
@@ -49,7 +49,7 @@ gbdrl() {
   gcm
   gp origin --delete "${branch_name}"
   gb -D "${branch_name}"
-}
+)'
 
 # Sevenrooms
 # -----------------------------
