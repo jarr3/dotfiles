@@ -14,6 +14,7 @@ export PATH="/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/app
 
 # Quick access files and directories
 export PROJECTS=$HOME/Projects
+export SESSIONS=$HOME/sessions
 export DOTFILES=$HOME/dotfiles
 export CONFIG=$DOTFILES/files
 export ZSHRC=$CONFIG/zshrc
@@ -29,6 +30,7 @@ export NVIMLOCK=$CONFIG/nvim/lazy-lock.json
 export N_PREFIX=$HOME/n
 
 alias projects="cd $PROJECTS"
+alias sessions="cd $SESSIONS"
 alias dotfiles="cd $DOTFILES"
 alias zshrc="nvim $ZSHRC"
 alias zshalias="nvim $ZSHALIAS"
