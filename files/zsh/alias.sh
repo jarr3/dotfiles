@@ -1,6 +1,13 @@
 #!/bin/bash
 alias vim="nvim"
 
+# Bash
+log_terminal_session() {
+    local session_date
+    session_date=$(date +"%Y-%m-%d_%H-%M-%S")
+    script ~/sessions/zsh_$session_date.log
+}
+
 # Python
 # -----------------------------
 # Updates the python and pip aliases when using virtualenv 
@@ -8,13 +15,13 @@ alias python='eval $(which python3)'
 alias pip='eval $(which pip3)'
 alias activate='source ./venv/bin/activate'
 
-# Git Commands
+# Git 
 # -----------------------------
 # git add -u : updates existing files that are tracked and does not add new ones
 alias gat="ga -u"
 
 # Delete a local branch
-function gbdl() {
+gbdl() {
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
@@ -24,7 +31,7 @@ function gbdl() {
 }
 
 # Delete a remote branch
-function gbdr() {
+gbdr() {
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
@@ -34,7 +41,7 @@ function gbdr() {
 }
 
 # Delete a local and remote branch
-function gbdrl() {
+gbdrl() {
   branch_name="$(git symbolic-ref HEAD 2>/dev/null)" ||
   branch_name="(unnamed branch)"     # detached HEAD
   branch_name=${branch_name##refs/heads/}
@@ -46,49 +53,52 @@ function gbdrl() {
 
 # Sevenrooms
 # -----------------------------
-# Search and find in logs
-# saf $filename $startline $text
-alias saf="search_and_filter"
-function search_and_filter() {
-    FILENAME=$1
-    START_LINE=$2
-    SEARCH_TEXT=$3
-    sed -n "${START_LINE},\$p" ${FILENAME} | grep ${SEARCH_TEXT}
+search_log() {
+    filename=$1
+    start_line=$2
+    text=$3
+    echo "Searching $filename for $text starting at line number $start_line"
+    sed -n "${start_line},\$p" ${filename} | grep ${text}
 }
-alias sr-tunnel='(
+sr_run()
+{
+    echo "Starting sevenrooms app locally..."
     cd ~/sevenrooms
+    current_branch=$(git branch --show-current)
+    echo "Starting sevenrooms app on branch $current_branch"
+
     workon env3
-    gcloud auth login
-    gcloud compute ssh --ssh-key-file=~/.ssh/sevenrooms_gcp vault-1 -- -N -L 8200:127.0.0.1:8200
-)'
-alias sr-serve='(
-    cd ~/sevenrooms
-    workon env3
-    pip install -r requirements.txt -r requirements_test.txt
+
+    # echo "Deleting Root Node Modules"
+    # rm -r node_modules
+    # echo "Deleting Frontend/Packages/ Node Modules"
+    # find frontend -name node_modules | xargs rm -rf
+    # echo "Finished Cleaning Node Modules"
+    
+    pip-sync requirements.txt requirements_test.txt
     yarn install
     gulp secrets:pull
     gulp build
     gulp serve
-)'
-alias sr-docker='(
-    cd ~/sevenrooms
-    workon env3
-    gulp docker:dev
-)'
-alias sr-main-serve='(
-    cd ~/sevenroom
-    gco main
-    git pull
-    workon env3
-    pip install -r requirements.txt -r requirements_test.txt
-    yarn install
-    gulp secrets:pull
-    gulp build
-    gulp serve
-)'
-alias sr-main-docker='(
-    cd ~/sevenrooms
-    gco main
-    workon env3
-    gulp docker:dev
-)'
+}
+sr_start_tunnel() {
+        TUNNEL_PID=$(lsof -ti :8200)
+        if [ -z "$TUNNEL_PID" ]
+        then
+                echo "Tunnel is starting..."
+                gcloud auth login
+                gcloud compute ssh --ssh-key-file=~/.ssh/sevenrooms_gcp vault-1 -- -N -L 8200:127.0.0.1:8200
+        else
+                echo "Tunnel is already running with PID: $TUNNEL_PID"
+        fi
+}
+
+sr_stop_tunnel() {
+        TUNNEL_PID=$(lsof -ti :8200)
+        if [ -z "$TUNNEL_PID" ]
+        then
+                echo "Tunnel is not running"
+        else
+                kill $TUNNEL_PID
+        fi
+}
