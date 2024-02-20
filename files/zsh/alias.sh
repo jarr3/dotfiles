@@ -55,10 +55,17 @@ alias gbdrl='(
 # -----------------------------
 search_log() {
     filename=$1
-    start_line=$2
-    text=$3
-    echo "Searching $filename for $text starting at line number $start_line"
-    sed -n "${start_line},\$p" ${filename} | grep ${text}
+    text=$2
+    start_line=$3
+    end_line=$4  # Optional end line
+
+    if [ -z "$end_line" ]; then
+        echo "Searching $filename for $text starting at line number $start_line to EOF"
+        nl -ba "$filename" | sed -n "${start_line},\$p" | grep "$text"
+    else
+        echo "Searching $filename for $text starting at line number $start_line to $end_line"
+        nl -ba "$filename" | sed -n "${start_line},${end_line}p" | grep "$text"
+    fi
 }
 alias sr_run='(
     echo "Starting sevenrooms app locally..."
