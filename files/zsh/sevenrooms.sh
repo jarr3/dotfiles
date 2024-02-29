@@ -25,8 +25,9 @@ command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 # virtualenv
 export PATH="/usr/local/share/python:$PATH"
-# virtualenv configuration
-pyenv virtualenvwrapper
+export PYENV_VERSION="$(pyenv version-name)"
+export PIP_REQUIRE_VIRTUALENV=true
+source ~/.pyenv/versions/$PYENV_VERSION/bin/virtualenvwrapper.sh
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/jngandjui/google-cloud-sdk/path.zsh.inc' ]; then

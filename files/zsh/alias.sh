@@ -8,13 +8,6 @@ log_terminal_session() {
     script ~/sessions/zsh_$session_date.log
 }
 
-# Python
-# -----------------------------
-# Updates the python and pip aliases when using virtualenv 
-alias python='eval $(which python3)'
-alias pip='eval $(which pip3)'
-alias activate='source ./venv/bin/activate'
-
 # Git 
 # -----------------------------
 # git add -u : updates existing files that are tracked and does not add new ones
@@ -81,6 +74,7 @@ alias sr_run='(
     # find frontend -name node_modules | xargs rm -rf
     # echo "Finished Cleaning Node Modules"
     
+    gcloud auth application-default login
     pip-sync requirements.txt requirements_test.txt
     yarn install
     gulp secrets:pull
