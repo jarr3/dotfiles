@@ -40,7 +40,7 @@ alias gbdrl='(
   branch_name=${branch_name##refs/heads/}
 
   gcm
-  gp origin --delete "${branch_name}"
+  gp origin --delete "${branch_name}" --no-verify
   gb -D "${branch_name}"
 )'
 
@@ -60,27 +60,72 @@ search_log() {
         nl -ba "$filename" | sed -n "${start_line},${end_line}p" | grep "$text"
     fi
 }
-alias sr_run='(
-    echo "Starting sevenrooms app locally..."
-    cd ~/sevenrooms
+alias sr_format='ruff format'
+alias sr_serve='(
+    echo "[ ] Starting sevenrooms app locally..."
+    cd ~/sevenrooms-web
     current_branch=$(git branch --show-current)
-    echo "Starting sevenrooms app on branch $current_branch"
+    echo "[√] Starting sevenrooms app on branch $current_branch"
 
-    workon env3
+    echo "[ ]Loading up env3 and node ..."
+    source env3/bin/activate
+    n auto
+    echo "[√] Loading up env3 and node"
 
-    # echo "Deleting Root Node Modules"
-    # rm -r node_modules
-    # echo "Deleting Frontend/Packages/ Node Modules"
-    # find frontend -name node_modules | xargs rm -rf
-    # echo "Finished Cleaning Node Modules"
-    
+    echo "[ ] Installing dependencies..."
     gcloud auth application-default login
     pip-sync requirements.txt requirements_test.txt
     yarn install
     gulp secrets:pull
+    echo "[√] Installing dependencies"
+
+    echo "[ ] Building webpack..."
     gulp build
     gulp serve
+    echo "[√] Building webpack"
 )'
+alias sr_cypress_open='(
+    echo "[ ] Starting sevenrooms cypress locally..."
+    cd ~/sevenrooms-web/automation/
+    current_branch=$(git branch --show-current)
+    echo "[√] Starting sevenrooms app on branch $current_branch"
+
+    echo "[ ] Loading up node ..."
+    n auto
+    echo "[√] Loading up node"
+
+    echo "[ ] Starting up cypress..."
+    yarn cypress-open
+    echo "[√] Starting up cypress"
+)'
+
+sr_web_kill() {
+        pkill -5 -f appengine
+        WEBPACK_PROCS="${"$(ps aux | grep '[w]ebpack' | awk '{print $2}')"//$'\n'/ }"
+        if [[ ! -z $WEBPACK_PROCS ]]
+        then
+                echo "Killing Webpack Proccesses $WEBPACK_PROCS"
+                /bin/bash -c "kill -9 $WEBPACK_PROCS"
+        else
+                echo "No webpack proccesses running"
+        fi
+        SSO_CONTAINERS="${"$(docker container ls --filter ancestor=sso_app -q -a)"//$'\n'/ }"
+        if [[ ! -z $SSO_CONTAINERS ]] 
+        then
+                echo "Killing containers $SSO_CONTAINERS"
+                /bin/bash -c "docker container rm -f $SSO_CONTAINERS"
+        else
+                echo "No Running SSO Containers"
+        fi
+        GUNICORN_PROCS="${"$(ps aux | grep '[g]unicorn -b' | awk '{print $2}')"//$'\n'/ }"
+        if [[ ! -z $GUNICORN_PROCS ]]
+        then
+                echo "Killing Gunicorn Processes $GUNICORN_PROCS"
+                /bin/bash -c "kill -9 $GUNICORN_PROCS"
+        else
+                echo "No Gunicorn Processes"
+        fi
+}
 sr_start_tunnel() {
         TUNNEL_PID=$(lsof -ti :8200)
         if [ -z "$TUNNEL_PID" ]

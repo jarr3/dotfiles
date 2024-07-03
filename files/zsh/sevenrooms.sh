@@ -4,7 +4,7 @@ export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
 # Node
 export N_PREFIX=${XDG_DATA_HOME:-~/.local/share}/n
-export PATH=$PATH:$N_PREFIX/bin
+export PATH=$N_PREFIX/bin:$PATH
 
 # Gulp
 alias gulp='yarn gulp'
@@ -27,7 +27,7 @@ eval "$(pyenv init -)"
 export PATH="/usr/local/share/python:$PATH"
 export PYENV_VERSION="$(pyenv version-name)"
 export PIP_REQUIRE_VIRTUALENV=true
-source ~/.pyenv/versions/$PYENV_VERSION/bin/virtualenvwrapper.sh
+# source ~/.pyenv/versions/$PYENV_VERSION/bin/virtualenvwrapper.sh
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/jngandjui/google-cloud-sdk/path.zsh.inc' ]; then
