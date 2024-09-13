@@ -60,14 +60,20 @@ search_log() {
         nl -ba "$filename" | sed -n "${start_line},${end_line}p" | grep "$text"
     fi
 }
-alias sr_format='ruff format'
+
+alias sr_lint_ruff='gulp lint:ruff:fix'
+alias sr_lint_es='gulp lint:es:fix'
+alias sr_lint='(
+    gulp lint:es:fix
+    gulp lint:ruff:fix
+)'
 alias sr_serve='(
     echo "[ ] Starting sevenrooms app locally..."
     cd ~/sevenrooms-web
     current_branch=$(git branch --show-current)
     echo "[√] Starting sevenrooms app on branch $current_branch"
 
-    echo "[ ]Loading up env3 and node ..."
+    echo "[ ] Loading up env3 and node ..."
     source env3/bin/activate
     n auto
     echo "[√] Loading up env3 and node"
