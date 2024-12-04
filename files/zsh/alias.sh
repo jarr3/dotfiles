@@ -80,7 +80,7 @@ alias sr_serve='(
 
     echo "[ ] Installing dependencies..."
     gcloud auth application-default login
-    pip-sync requirements.txt requirements_test.txt
+    uv pip sync requirements.txt requirements_test.txt
     yarn install
     gulp secrets:pull
     echo "[√] Installing dependencies"

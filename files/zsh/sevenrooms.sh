@@ -6,6 +6,9 @@ export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 export N_PREFIX=${XDG_DATA_HOME:-~/.local/share}/n
 export PATH=$N_PREFIX/bin:$PATH
 
+# uv
+export PATH="~/.local/bin:$PATH"
+
 # Gulp
 alias gulp='yarn gulp'
 
