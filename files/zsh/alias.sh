@@ -73,10 +73,10 @@ alias sr_serve='(
     current_branch=$(git branch --show-current)
     echo "[√] Starting sevenrooms app on branch $current_branch"
 
-    echo "[ ] Loading up env3 and node ..."
-    source env3/bin/activate
+    echo "[ ] Loading up venv and node ..."
+    source .venv/bin/activate
     n auto
-    echo "[√] Loading up env3 and node"
+    echo "[√] Loading up venv and node"
 
     echo "[ ] Installing dependencies..."
     gcloud auth application-default login
