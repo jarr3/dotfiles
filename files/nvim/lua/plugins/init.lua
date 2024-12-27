@@ -1,7 +1,12 @@
 return {
   -- Improve vim skills by playing games
   {
-    'ThePrimeagen/vim-be-good'
+    "ThePrimeagen/vim-be-good",
+  },
+
+  {
+    "christoomey/vim-tmux-navigator",
+    lazy = false,
   },
 
   {
@@ -56,22 +61,51 @@ return {
   },
 
   {
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        "lua-language-server",
-        "stylua",
-        "html-lsp",
-        "css-lsp",
-        "prettier",
-        "clangd",
-        "py",
-        "pyright",
-        "mypy",
-        "ruff",
-        "clang-format",
+    "williamboman/mason-lspconfig.nvim",
+      dependencies = {
+        "williamboman/mason.nvim",
+        "neovim/nvim-lspconfig",
       },
-    },
+      config = function()
+        local servers = {
+          "html", -- HTML LSP
+          "rust_analyzer", -- Rust Analyzer
+          "pyright",
+          "tailwindcss", -- Tailwind CSS LSP
+          "sqls", -- SQL LSP
+          "clangd", -- C/C++ LSP
+          "eslint", -- ESLint LSP
+          "nextls", -- Next.js LSP
+          "jsonls", -- JSON LSP
+          "bashls", -- Bash LSP
+          "cssls", -- CSS LSP
+          "dockerls", -- Dockerfile LSP
+          "docker_compose_language_service", -- Docker Compose LSP
+          "yamlls", -- YAML LSP
+          "nginx_language_server", -- Nginx LSP
+          "lua_ls", -- Lua LSP
+          "gopls", -- golang
+          "emmet_ls",
+          "cmake",
+        }
+      
+        local lspconfig = require "lspconfig"
+        local masonlsp = require "mason-lspconfig"
+        local nvlsp = require "nvchad.configs.lspconfig"
+
+        masonlsp.setup({
+          ensure_installed = servers,
+          handlers = {
+            function(server_name)
+              lspconfig[server_name].setup {
+                on_attach = nvlsp.on_attach,
+                on_init = nvlsp.on_init,
+                capabilities = nvlsp.capabilities,
+              }
+            end,
+          },
+        })
+      end,
   },
 
   {
@@ -108,9 +142,16 @@ return {
   },
 
   -- Single tabpage interface for easily cycling through diffs
-  {
-    "sindrets/diffview.nvim",
-    dependencies = "nvim-lua/plenary.nvim",
-  },
+  { "tpope/vim-fugitive" },
 
+  { "rbong/vim-flog", dependencies = {
+    "tpope/vim-fugitive",
+  }, lazy = false },
+
+  { "sindrets/diffview.nvim", lazy = false },
+
+  {
+    "kevinhwang91/nvim-bqf",
+    lazy = false,
+  },
 }

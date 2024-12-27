@@ -46,8 +46,9 @@ dependency() {
     fi
 }
 
-function homebrew_setup ()
+function setup_homebrew ()
 {
+    cd "$dotfiles_dir"
     echo "Installing Homebrew..."
     # Check if Homebrew is installed
     if command -v brew &> /dev/null; then
@@ -72,6 +73,11 @@ function homebrew_setup ()
     # Fast program to search filesystem 
     dependency fd f
 
+
+    echo "Installing up pipx…"
+    # Python module manager 
+    dependency pipx 
+
     echo "Installing up Jetbrains font…"
     brew tap homebrew/cask-fonts
     dependency font-jetbrains-mono-nerd-font c
@@ -81,6 +87,16 @@ function homebrew_setup ()
     mkdir -p ~/.config/alacritty
     ln -sf $dotfiles_config_dir/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
 
+    echo "Installing up Aerospace…"
+    dependency nikitabobko/tap/aerospace c
+    mkdir -p ~/.config/aerospace
+    ln -sf $dotfiles_config_dir/aerospace/aerospace.toml ~/.config/aerospace/aerospace.toml
+}
+
+
+function setup_tmux ()
+{
+    cd "$dotfiles_dir"
     echo "Installing up Tmux…"
     dependency tmux f
     TPM_DIR="$HOME/.tmux/plugins/tpm"
@@ -90,44 +106,50 @@ function homebrew_setup ()
     else
         echo "TPM directory already exists. Skipping clone operation."
     fi
-    mkdir -p ~/.config/tmux
-    ln -sf $dotfiles_config_dir/tmux/tmux.conf ~/.config/tmux/tmux.conf
-
-    echo "Installing up Aerospace…"
-    dependency nikitabobko/tap/aerospace c
-    mkdir -p ~/.config/aerospace
-    ln -sf $dotfiles_config_dir/aerospace/aerospace.toml ~/.config/aerospace/aerospace.toml
+    target_tmux_dir=~/.config/tmux
+    rm -rf $target_tmux_dir
+    mkdir -p $target_tmux_dir
+    ln -sf $dotfiles_config_dir/tmux/tmux.conf $target_tmux_dir/tmux.conf
 }
 
-function nvim_setup ()
+function setup_nvim ()
 {
+    cd "$dotfiles_dir"
     echo "Installing NeoVim…"
     dependency neovim f
     source_nvim_dir=$dotfiles_config_dir/nvim
     target_nvim_dir=~/.config/nvim
     rm -rf $target_nvim_dir
-    mkdir -p ~/.config/nvim/.backup
-    mkdir -p ~/.config/nvim/lua/config
-    mkdir -p ~/.config/nvim/lua/plugins
-    ln -sf ~/dotfiles/files/nvim/init.lua ~/.config/nvim/init.lua
-    ln -sf ~/dotfiles/files/nvim/lazy-lock.json ~/.config/nvim/lazy-lock.json
+    mkdir -p $target_nvim_dir/.backup
+    mkdir -p $target_nvim_dir/lua/config
+    mkdir -p $target_nvim_dir/lua/plugins
+    ln -sf ~/dotfiles/files/nvim/init.lua $target_nvim_dir/init.lua
+    ln -sf ~/dotfiles/files/nvim/lazy-lock.json $target_nvim_dir/lazy-lock.json
     cd $source_nvim_dir
     find . -type f | while read -r file; do
       file="${file#./}"
       mkdir -p "$target_nvim_dir/$(dirname "$file")"
-      ln -sf $source_nvim_dir/$file $target_nvim_dir/$file
+      ln -sf "$source_nvim_dir/$file" "$target_nvim_dir/$file"
     done
     cd $dotfiles_dir
 
 
     echo "Installing NeoVim LSP dependency…"
+    dependency n 
     n auto 
-    npm install -g pyright
-    pip3 install "python-lsp-server[all]" pylsp-mypy python-lsp-black
+    npm install -g typescript typescript-language-server # ts_ls
+
+    dependency pipx 
+    pipx install python-lsp-server
+    cd ~/.local/share/pipx/venvs/python-lsp-server
+    source base/activate
+    python3 -m pip install pylsp-mypy
+    python3 -m pip install python-lsp-ruff --no-deps
 }
 
-function shell_setup ()
+function setup_shell ()
 {
+    cd "$dotfiles_dir"
     echo "Installing Zsh…"
     dependency zsh f
     OH_MY_ZSH=$HOME/.oh-my-zsh
@@ -169,16 +191,18 @@ function shell_setup ()
 }
 
 case "$1" in
-    homebrew) homebrew_setup;;
-    nvim) nvim_setup;;
-    shell) shell_setup;;
+    homebrew) setup_homebrew;;
+    tmux) setup_tmux;;
+    nvim) setup_nvim;;
+    shell) setup_shell;;
     all)
-        homebrew_setup
-        nvim_setup
-        shell_setup
+        setup_homebrew
+        setup_shell
+        setup_nvim
+        setup_tmux
         ;;
     *)
-      echo -e "\nUsage: $(basename "$0") {homebrew|nvim|shell|all}\n"
+      echo -e "\nUsage: $(basename "$0") {homebrew|tmux|nvim|shell|all}\n"
       return 0
       ;;
 esac
