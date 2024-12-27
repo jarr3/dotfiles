@@ -61,6 +61,22 @@ search_log() {
     fi
 }
 
+create_log_file() {
+  if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    today=$(date +"%Y-%m-%d")
+    safe_branch=$(echo "$current_branch" | sed 's|/|_|g')
+    log_dir="$HOME/sessions/log/$safe_branch"
+    mkdir -p "$log_dir"
+    filename="$log_dir/${today}.txt"
+
+    echo "Redirecting output to log file: $filename"
+    exec > >(tee -a "$filename") 2>&1
+  else
+    echo "Current directory is not a Git repository. Exiting."
+  fi
+}
+
 alias sr_lint_ruff='gulp lint:ruff:fix'
 alias sr_lint_es='gulp lint:es:fix'
 alias sr_lint='(
@@ -71,6 +87,7 @@ alias sr_serve='(
     echo "[ ] Starting sevenrooms app locally..."
     cd ~/sevenrooms-web
     current_branch=$(git branch --show-current)
+    create_log_file
     echo "[√] Starting sevenrooms app on branch $current_branch"
 
     echo "[ ] Loading up venv and node ..."
