@@ -90,21 +90,18 @@ alias sr_serve='(
     create_log_file
     echo "[√] Starting sevenrooms app on branch $current_branch"
 
-    echo "[ ] Loading up venv and node ..."
-    source .venv/bin/activate
-    n auto
-    echo "[√] Loading up venv and node"
-
     echo "[ ] Installing dependencies..."
-    gcloud auth application-default login
-    uv pip sync requirements.txt requirements_test.txt
-    yarn install
-    gulp secrets:pull
+    gcloud auth login --update-adc
+    n auto
+    corepack prepare
+    pnpm gulp secrets:pull
+    pnpm install
+    uv sync
     echo "[√] Installing dependencies"
 
     echo "[ ] Building webpack..."
-    gulp build
-    gulp serve
+    pnpm gulp build
+    pnpm gulp serve --fast
     echo "[√] Building webpack"
 )'
 alias sr_cypress_open='(
