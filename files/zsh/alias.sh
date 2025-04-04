@@ -77,11 +77,11 @@ create_log_file() {
   fi
 }
 
-alias sr_lint_ruff='gulp lint:ruff:fix'
-alias sr_lint_es='gulp lint:es:fix'
 alias sr_lint='(
-    gulp lint:es:fix
-    gulp lint:ruff:fix
+    pnpm gulp lint:es:fix
+    pnpm gulp lint:ruff:fix
+    uv run --all-extras pyright
+    uv run ruff format -- --fix .
 )'
 alias sr_serve='(
     echo "[ ] Starting sevenrooms app locally..."
@@ -91,16 +91,10 @@ alias sr_serve='(
     echo "[√] Starting sevenrooms app on branch $current_branch"
 
     echo "[ ] Installing dependencies..."
-    gcloud auth login --update-adc
-    n auto
-    corepack prepare
-    pnpm gulp secrets:pull
-    pnpm install
-    uv sync
+    pnpm gulp bootstrap
     echo "[√] Installing dependencies"
 
     echo "[ ] Building webpack..."
-    pnpm gulp build
     pnpm gulp serve --fast
     echo "[√] Building webpack"
 )'
